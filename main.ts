@@ -18,11 +18,11 @@ export default class MyPlugin extends Plugin {
 			// Define the string to be inserted
 			const convertedUnit = "This is the converted unit string.";
 
-			// Define the condition that triggers the insertion
-			const condition = 2;
+			// Define the target index where conversion should occur
+			const targetIndex = 2; // Example: can adjust this or use a condition to determine
 
-			// Print each word with its corresponding index and insert a string after the specific condition
-			this.printAndInsertAfter(words, condition, convertedUnit);
+			// Print each word with its corresponding index and insert the string if conditions are met
+			this.printAndInsertAfter(words, targetIndex, convertedUnit);
 		});
 
 	}
@@ -50,3 +50,14 @@ export default class MyPlugin extends Plugin {
 		});
 	}
 }
+
+/**
+ * onload() { 
+ * read the content of the editor
+ * split the content into words
+ * go through each word and iterate to see if check if the text matches the unit's regular expression
+ * if it does, convert the unit
+ * round the value if necessary
+ * replace the text with the converted value and unit
+ * }
+ */
