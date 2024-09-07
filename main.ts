@@ -1,4 +1,5 @@
 import { Plugin } from "obsidian";
+import { unitsCheckForConversion } from "./src/conversions";
 
 export default class MyPlugin extends Plugin {
 	
@@ -18,18 +19,18 @@ export default class MyPlugin extends Plugin {
 			// Define the string to be inserted
 			const convertedUnit = "This is the converted unit string.";
 
-			// Define the target index where conversion should occur
-			const targetIndex = 2; // Example: can adjust this or use a condition to determine
+			// Define the condition that triggers the insertion
+			const i = 2;
 
-			// Print each word with its corresponding index and insert the string if conditions are met
-			this.printAndInsertAfter(words, targetIndex, convertedUnit);
+			// Print each word with its corresponding index and insert a string after the specific condition
+			this.printAndInsertAfter(words, i, convertedUnit);
 		});
 
 	}
 
 	// Function to split text by spaces
 	splitTextBySpace(text: string): string[] {
-		// Split the text by spaces
+		// Split the text by spaces 
 		const words = text.split(' ');
 	  
 		// Return the array of words
@@ -49,15 +50,80 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 	}
-}
 
-/**
- * onload() { 
- * read the content of the editor
- * split the content into words
- * go through each word and iterate to see if check if the text matches the unit's regular expression
- * if it does, convert the unit
- * round the value if necessary
- * replace the text with the converted value and unit
- * }
- */
+	// Function to check for units in the content and return the match if found
+	checkForUnits(content: string): string | null {
+		let foundMatch: string | null = null;
+		// Iterate over each conversion pattern
+		unitsCheckForConversion.forEach(({ regex }) => {
+			const matches = content.match(regex);
+			if (matches) {
+				foundMatch = matches[0]; // Assuming we take the first match
+				console.log(`Found match: "${foundMatch}"`);
+			}
+		});
+		return foundMatch;
+	}
+
+	// Function to check if the unit has already been converted
+	unitAlreadyConverted(content: string, match: string): boolean {
+		// Regular expression to check for the match followed by brackets with a number or float
+		const regex = new RegExp(`${match}\\s*\\(\\s*\\d+(\\.\\d+)?\\s*\\)`);
+		
+		// Check if the content matches the regex and return the result as a boolean
+		return regex.test(content);
+	}
+
+		// Function to convert units if not already converted
+		convertUnitsIfNecessary(content: string): string {
+			let updatedContent = content;
+	
+			// Iterate over each conversion pattern
+			unitsCheckForConversion.forEach(({ regex, conversionFunction }) => {
+				const matches = content.match(regex);
+				if (matches) {
+					const match = matches[0];
+					if (!this.unitAlreadyConverted(content, match)) {
+						// Perform the conversion using the provided conversion function
+						const convertedValue = conversionFunction(match);
+						// Replace the match with the converted value in the format "match (convertedValue)"
+						updatedContent = updatedContent.replace(match, `${match} (${convertedValue})`);
+						console.log(`Converted "${match}" to "${convertedValue}"`);
+					}
+				}
+			});
+	
+			return updatedContent;
+		}
+
+
+
+
+	// conversionCondition
+	
+	// Function to convert the unit to the target unit if all conditions are met & Function to insert the converted unit back into the text
+	
+	// Checker Klasse - Wörter werden als Parameter gespeichert und können dann auf bestimmte Muster geprüft werden
+	
+	// specialty cooking units
+	
+	startConversionProcess(content: string, unitName: string): void {
+		const conversionCondition = checkForUnits(content) && !unitAlreadyConverted(content, unitName);
+	
+		if (conversionCondition) {
+			// Your conversion logic here
+			console.log("Conversion condition is positive. Proceed with conversion.");
+			// Add your conversion logic here
+		} else {
+			console.log("Conversion condition is not met.");
+		}
+	}
+	
+	// Call the startConversionProcess function with the appropriate arguments
+
+	// Function to convert the unit to the target unit if all conditions are met & Function to insert the converted unit back into the text
+
+	// Checker Klasse - Wörter werden als Parameter gespeichert und können dann auf bestimmte Muster geprüft werden
+
+	// specialty cooking units
+}
