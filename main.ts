@@ -1,5 +1,5 @@
 import { Plugin } from "obsidian";
-import { unitsCheckForConversion } from "./src/conversions";
+import units from "./units"
 
 export default class MyPlugin extends Plugin {
 
@@ -18,14 +18,12 @@ export default class MyPlugin extends Plugin {
 	// Main processing function to handle unit conversion
 	processContent(content: string): string {
 		const words = this.splitTextBySpace(content);
-		this.printWordsWithIndices(words);
+		//this.printWordsWithIndices(words);
 
-		const targetIndex = 2;
-		const convertedUnit = "This is the converted unit string.";
-		this.printAndInsertAfter(words, targetIndex, convertedUnit);
+		this.convertWords(words);
 
 		// Convert units if necessary and return updated content
-		return this.convertUnitsIfNecessary(content);
+		return words.join(' ');
 	}
 
 	// Function to split text by spaces
@@ -33,23 +31,49 @@ export default class MyPlugin extends Plugin {
 		return text.split(' ');
 	}
 
-	// Function to print words with their indices
+	// Function to add converted unit words to the content
+	convertWords(words: string[]) {
+		for (let i = 1; i < words.length; i++) {
+			const unit = words[i].toLowerCase().trim();
+			const nextWord = words.length > i + 1 ? words[i + 1].toLowerCase().trim() : '';
+			const rawValue = words[i - 1].trim();
+			let value;
+
+			try {
+				value = parseFloat(rawValue);
+			} catch (_) {
+				continue;
+			}
+
+			if (!Object.keys(units).includes(unit)) {
+				continue;
+			}
+
+			// @ts-ignore
+			const { newUnit, ratio } = units[unit];
+
+			const convertedValue = (value * ratio).toFixed(2);
+			const convertedUnitString = `(${convertedValue}${newUnit})`;
+			if(nextWord === convertedUnitString) {
+				continue;
+			} else if (nextWord.endsWith(`${newUnit})`)) {
+				words[i + 1] = `${convertedUnitString}`;
+			} else {
+				words[i] = `${words[i]} ${convertedUnitString}`;
+			}
+
+		}
+	}
+	
+	/*
+	// *unction to print words with their indices
 	printWordsWithIndices(words: string[]) {
 		words.forEach((word, index) => {
 			console.log(`Index: ${index}, Word: "${word}"`);
 		});
 	}
-
-	// Function to print words and insert a string if the index matches a specific value
-	printAndInsertAfter(words: string[], targetIndex: number, insertString: string) {
-		words.forEach((word, index) => {
-			console.log(`Index: ${index}, Word: "${word}"`);
-			if (index === targetIndex) {
-				console.log(`( ${insertString} )`);
-			}
-		});
-	}
-
+	*/
+	/*
 	// Function to convert units if not already converted
 	convertUnitsIfNecessary(content: string): string {
 		let updatedContent = content;
@@ -87,4 +111,5 @@ export default class MyPlugin extends Plugin {
 	insertConvertedValue(content: string, match: string, convertedValue: string): string {
 		return content.replace(match, `${match} (${convertedValue})`);
 	}
+		*/
 }
