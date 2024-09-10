@@ -1,5 +1,5 @@
 import { Plugin } from "obsidian";
-import units from "./units"
+import units from "./units" 
 
 export default class MyPlugin extends Plugin {
 
@@ -11,6 +11,7 @@ export default class MyPlugin extends Plugin {
 			if (updatedContent !== content) {
 				// Update the editor with the new content if changes were made
 				editor.getDoc().setValue(updatedContent);
+				console.log("Updated content: ", updatedContent);
 			} 
 		});
 	}
@@ -39,8 +40,13 @@ export default class MyPlugin extends Plugin {
 			let value;
 
 			try {
-				value = parseFloat(rawValue);
+				const filteredValue = rawValue.replace(/(\r\n|\n|\r)/gm, "");
+				value = parseFloat(filteredValue);
 			} catch (_) {
+				continue;
+			}
+
+			if (isNaN(value)) {
 				continue;
 			}
 
