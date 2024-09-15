@@ -1,3 +1,3 @@
 export default {
-    "inch": { "newUnit": "cm", "ratio": 2.54 }
+    '^inch(es)?$': { "newUnit": "cm", "ratio": 2.54 }
 };

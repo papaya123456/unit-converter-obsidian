@@ -19,4 +19,4 @@ export const unitsCheckForConversion = units.map(unit => ({
     multiplier: unit.multiplier
 }));
 
-// ounche, pound
+// ounce, pound

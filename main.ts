@@ -28,34 +28,46 @@ export default class MyPlugin extends Plugin {
 
 	// Function to split text by spaces
 	splitTextBySpace(text: string): string[] {
+		text = text.replace(/(\r)/gm, "\r");
 		return text.split(' ');
 	}
 
 	// Function to add converted unit words to the content
 	convertWords(words: string[]) {
+		console.log(words);
 		for (let i = 1; i < words.length; i++) {
 			const unit = words[i].toLowerCase().trim();
 			const nextWord = words.length > i + 1 ? words[i + 1].toLowerCase().trim() : '';
 			const rawValue = words[i - 1].trim();
-			let value;
+			let value: any;
 
 			try {
-				const filteredValue = rawValue.replace(/(\r\n|\n|\r)/gm, "");
-				value = parseFloat(filteredValue);
+				if (rawValue.includes('\n')) {
+					value = rawValue.split('\n')[0];
+				}
+				value = parseFloat(value || rawValue);
 			} catch (_) {
 				continue;
 			}
-
 			if (isNaN(value)) {
 				continue;
 			}
 
-			if (!Object.keys(units).includes(unit)) {
+			let foundUnit = null;
+			for (const u of Object.keys(units)) {
+				if ((new RegExp(u)).test(unit)) {
+					console.log("Found unit: ", u);
+					foundUnit = u;
+					break;
+				}
+			}
+
+			if (!foundUnit) {
 				continue;
 			}
 
 			// @ts-ignore
-			const { newUnit, ratio } = units[unit];
+			const { newUnit, ratio } = units[foundUnit];
 
 			const convertedValue = (value * ratio).toFixed(2);
 			const convertedUnitString = `(${convertedValue}${newUnit})`;
@@ -66,8 +78,6 @@ export default class MyPlugin extends Plugin {
 			} else {
 				words[i] = `${words[i]} ${convertedUnitString}`;
 			}
-
 		}
 	}
-
 }
